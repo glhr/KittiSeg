@@ -27,7 +27,7 @@ import json
 import logging
 import os
 import sys
-
+import glob
 import collections
 
 # configure logging
@@ -72,27 +72,6 @@ flags.DEFINE_string('output_image', None,
 
 
 default_run = 'KittiSeg_2019_11_15_16.15'
-weights_url = ("ftp://mi.eng.cam.ac.uk/"
-               "pub/mttt2/models/KittiSeg_pretrained.zip")
-
-
-def maybe_download_and_extract(runs_dir):
-    logdir = os.path.join(runs_dir, default_run)
-
-    if os.path.exists(logdir):
-        # weights are downloaded. Nothing to do
-        return
-      
-    if not os.path.exists(runs_dir):
-        os.makedirs(runs_dir)
-    download_name = tv_utils.download(weights_url, runs_dir)
-    logging.info("Extracting KittiSeg_pretrained.zip")
-
-    import zipfile
-    zipfile.ZipFile(download_name, 'r').extractall(runs_dir)
-
-    return
-
 
 def resize_label_image(image, gt_image, image_height, image_width):
     image = scp.misc.imresize(image, size=(image_height, image_width),
@@ -107,14 +86,6 @@ def resize_label_image(image, gt_image, image_height, image_width):
 def main(_):
     tv_utils.set_gpus_to_use()
 
-    if FLAGS.input_image is None:
-        logging.error("No input_image was given.")
-        logging.info(
-            "Usage: python demo.py --input_image data/test.png "
-            "[--output_image output_image] [--logdir /path/to/weights] "
-            "[--gpus GPUs_to_use] ")
-        exit(1)
-
     if FLAGS.logdir is None:
         # Download and use weights from the MultiNet Paper
         if 'TV_DIR_RUNS' in os.environ:
@@ -122,7 +93,6 @@ def main(_):
                                     'KittiSeg')
         else:
             runs_dir = 'RUNS'
-        maybe_download_and_extract(runs_dir)
         logdir = os.path.join(runs_dir, default_run)
     else:
         logging.info("Using weights found in {}".format(FLAGS.logdir))
@@ -158,70 +128,75 @@ def main(_):
 
         logging.info("Weights loaded successfully.")
 
-    input_image = FLAGS.input_image
-    logging.info("Starting inference using {} as input".format(input_image))
+        for path in glob.iglob('./data/thermal/*.png'):
+            input_image = path
+            logging.info("Starting inference using {} as input".format(input_image))
 
-    # Load and resize input image
-    image = scp.misc.imread(input_image)
-    if hypes['jitter']['reseize_image']:
-        # Resize input only, if specified in hypes
-        image_height = hypes['jitter']['image_height']
-        image_width = hypes['jitter']['image_width']
-        image = scp.misc.imresize(image, size=(image_height, image_width),
-                                  interp='cubic')
+            # Load and resize input image
+            image = scp.misc.imread(input_image)
+            if hypes['jitter']['reseize_image']:
+                # Resize input only, if specified in hypes
+                image_height = hypes['jitter']['image_height']
+                image_width = hypes['jitter']['image_width']
+                image = scp.misc.imresize(image, size=(image_height, image_width),
+                		          interp='cubic')
 
-    # Run KittiSeg model on image
-    feed = {image_pl: image}
-    softmax = prediction['softmax']
-    output = sess.run([softmax], feed_dict=feed)
+            # Run KittiSeg model on image
+            feed = {image_pl: image}
+            softmax = prediction['softmax']
+            output = sess.run([softmax], feed_dict=feed)
 
-    # Reshape output from flat vector to 2D Image
-    shape = image.shape
-    output_image = output[0][:, 1].reshape(shape[0], shape[1])
+            # Reshape output from flat vector to 2D Image
+            shape = image.shape
+            output_image = output[0][:, 1].reshape(shape[0], shape[1])
 
-    # Plot confidences as red-blue overlay
-    rb_image = seg.make_overlay(image, output_image)
+            # Plot confidences as red-blue overlay
+            rb_image = seg.make_overlay(image, output_image)
 
-    # Accept all pixel with conf >= 0.5 as positive prediction
-    # This creates a `hard` prediction result for class street
-    threshold = 0.5
-    street_prediction = output_image > threshold
+            # Accept all pixel with conf >= 0.5 as positive prediction
+            # This creates a `hard` prediction result for class street
+            threshold = 0.5
+            street_prediction = output_image > threshold
 
-    # Plot the hard prediction as green overlay
-    green_image = tv_utils.fast_overlay(image, street_prediction)
+            # Plot the hard prediction as green overlay
+            green_image = tv_utils.fast_overlay(image, street_prediction)
 
-    # Save output images to disk.
-    if FLAGS.output_image is None:
-        output_base_name = input_image
-    else:
-        output_base_name = FLAGS.output_image
+            # Save output images to disk.
+            if FLAGS.output_image is None:
+                      output_base_name = input_image
+            else:
+                      output_base_name = FLAGS.output_image
 
-    raw_image_name = output_base_name.split('.')[0] + '_raw.png'
-    rb_image_name = output_base_name.split('.')[0] + '_rb.png'
-    green_image_name = output_base_name.split('.')[0] + '_green.png'
+            img_name = path.split('/')[-1]
+            extension = '.' + img_name.split('.')[-1]
+            img_name = img_name.split('.')[0]
+            outputdir = os.path.join(logdir,'thermal/')
+            raw_image_name = os.path.join(outputdir,img_name + '_raw' + extension) 
+            rb_image_name = os.path.join(outputdir,img_name + '_rb' + extension)
+            green_image_name = os.path.join(outputdir,img_name + '_green' + extension)
 
-    scp.misc.imsave(raw_image_name, output_image)
-    scp.misc.imsave(rb_image_name, rb_image)
-    scp.misc.imsave(green_image_name, green_image)
+            scp.misc.imsave(raw_image_name, output_image)
+            scp.misc.imsave(rb_image_name, rb_image)
+            scp.misc.imsave(green_image_name, green_image)
 
-    logging.info("")
-    logging.info("Raw output image has been saved to: {}".format(
-        os.path.realpath(raw_image_name)))
-    logging.info("Red-Blue overlay of confs have been saved to: {}".format(
-        os.path.realpath(rb_image_name)))
-    logging.info("Green plot of predictions have been saved to: {}".format(
-        os.path.realpath(green_image_name)))
+            logging.info("")
+            logging.info("Raw output image has been saved to: {}".format(
+            os.path.realpath(raw_image_name)))
+            logging.info("Red-Blue overlay of confs have been saved to: {}".format(
+            os.path.realpath(rb_image_name)))
+            logging.info("Green plot of predictions have been saved to: {}".format(
+            os.path.realpath(green_image_name)))
 
-    logging.info("")
-    logging.warning("Do NOT use this Code to evaluate multiple images.")
+            logging.info("")
+            logging.warning("Do NOT use this Code to evaluate multiple images.")
 
-    logging.warning("Demo.py is **very slow** and designed "
-                    "to be a tutorial to show how the KittiSeg works.")
-    logging.warning("")
-    logging.warning("Please see this comment, if you like to apply demo.py to"
-                    "multiple images see:")
-    logging.warning("https://github.com/MarvinTeichmann/KittiBox/"
-                    "issues/15#issuecomment-301800058")
+            logging.warning("Demo.py is **very slow** and designed "
+            	    "to be a tutorial to show how the KittiSeg works.")
+            logging.warning("")
+            logging.warning("Please see this comment, if you like to apply demo.py to"
+            	    "multiple images see:")
+            logging.warning("https://github.com/MarvinTeichmann/KittiBox/"
+            	    "issues/15#issuecomment-301800058")
 
 
 if __name__ == '__main__':
