@@ -1,0 +1,6 @@
+model_checkpoint_path: "/u/marvin/no_backup/RUNS/KittiSeg/loss_bench/xentropy_kitti_fcn_2016_10_15_01.18/model.ckpt-15999"
+all_model_checkpoint_paths: "/u/marvin/no_backup/RUNS/KittiSeg/loss_bench/xentropy_kitti_fcn_2016_10_15_01.18/model.ckpt-8000"
+all_model_checkpoint_paths: "/u/marvin/no_backup/RUNS/KittiSeg/loss_bench/xentropy_kitti_fcn_2016_10_15_01.18/model.ckpt-10000"
+all_model_checkpoint_paths: "/u/marvin/no_backup/RUNS/KittiSeg/loss_bench/xentropy_kitti_fcn_2016_10_15_01.18/model.ckpt-12000"
+all_model_checkpoint_paths: "/u/marvin/no_backup/RUNS/KittiSeg/loss_bench/xentropy_kitti_fcn_2016_10_15_01.18/model.ckpt-14000"
+all_model_checkpoint_paths: "/u/marvin/no_backup/RUNS/KittiSeg/loss_bench/xentropy_kitti_fcn_2016_10_15_01.18/model.ckpt-15999"

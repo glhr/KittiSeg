@@ -1,0 +1,7 @@
+model_checkpoint_path: "/home/rob/Desktop/Danny/KittiSeg/hypes/../RUNS/KittiSeg_2019_11_15_16.15/model.ckpt-11999"
+all_model_checkpoint_paths: "/home/rob/Desktop/Danny/KittiSeg/hypes/../RUNS/KittiSeg_2019_11_15_16.15/model.ckpt-2000"
+all_model_checkpoint_paths: "/home/rob/Desktop/Danny/KittiSeg/hypes/../RUNS/KittiSeg_2019_11_15_16.15/model.ckpt-4000"
+all_model_checkpoint_paths: "/home/rob/Desktop/Danny/KittiSeg/hypes/../RUNS/KittiSeg_2019_11_15_16.15/model.ckpt-6000"
+all_model_checkpoint_paths: "/home/rob/Desktop/Danny/KittiSeg/hypes/../RUNS/KittiSeg_2019_11_15_16.15/model.ckpt-8000"
+all_model_checkpoint_paths: "/home/rob/Desktop/Danny/KittiSeg/hypes/../RUNS/KittiSeg_2019_11_15_16.15/model.ckpt-10000"
+all_model_checkpoint_paths: "/home/rob/Desktop/Danny/KittiSeg/hypes/../RUNS/KittiSeg_2019_11_15_16.15/model.ckpt-11999"

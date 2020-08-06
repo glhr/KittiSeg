@@ -11,10 +11,12 @@ demo*.sh
 .nfs*
 
 DATA/*
-RUNS/*
 output/*
 
 hypes/*_*_*.json
+
+events.out.*
+model.*
 
 .directory
 
