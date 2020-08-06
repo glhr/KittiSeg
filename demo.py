@@ -71,7 +71,7 @@ flags.DEFINE_string('output_image', None,
                     'Image to apply KittiSeg.')
 
 
-default_run = 'KittiSeg_2019_11_15_16.15'
+default_run = 'KittiSeg_pretrained'
 weights_url = ("ftp://mi.eng.cam.ac.uk/"
                "pub/mttt2/models/KittiSeg_pretrained.zip")
 
