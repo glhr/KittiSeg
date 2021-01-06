@@ -4,3 +4,6 @@
 [submodule "submodules/tensorflow-fcn"]
 	path = submodules/tensorflow-fcn
 	url = https://github.com/MarvinTeichmann/tensorflow-fcn.git
+[submodule "data/labelbox-generate-data"]
+	path = data/labelbox-generate-data
+	url = https://github.com/glhr/labelbox-generate-data.git
