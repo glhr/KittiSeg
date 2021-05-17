@@ -64,27 +64,27 @@ if args.fetch:
                   open(os.path.join(OUTPUT_ORIGINAL_FOLDER,filename), 'wb').write(res_orig.content)
 
 for path in glob.iglob(os.path.join(OUTPUT_LABELED_FOLDER,'*.png')):
-              filename = 'labeled_'+path.split("/")[-1]
-              input_line = os.path.join('training',OUTPUT_ORIGINAL_FOLDER,filename)
-              print(input_line)
+      filename = 'labeled_'+path.split("/")[-1]
+      input_line = os.path.join('training',OUTPUT_ORIGINAL_FOLDER,filename)
+      print(input_line)
 
-              img = cv2.imread(path)
+      img = cv2.imread(path)
 
-              # Mask image to only select white
-              white=np.array([200,200,200])
-              mask=cv2.inRange(img,white,np.array([255,255,255]))
-              #mask_inv = [not m for m in mask]
+      # Mask image to only select white
+      white=np.array([200,200,200])
+      mask=cv2.inRange(img,white,np.array([255,255,255]))
+      #mask_inv = [not m for m in mask]
 
-              # Change image colors
-              img[mask==0] = BACKGROUND_COLOR
-              img[mask>0] = ROAD_COLOR
+      # Change image colors
+      img[mask==0] = BACKGROUND_COLOR
+      img[mask>0] = ROAD_COLOR
 
-              path = path.split('/')[-1]
-              cv2.imwrite(os.path.join(OUTPUT_COLOR_CORRECTED_FOLDER,filename),img)
-              output_line = os.path.join('training',OUTPUT_COLOR_CORRECTED_FOLDER,filename)
-              print(output_line)
+      path = path.split('/')[-1]
+      cv2.imwrite(os.path.join(OUTPUT_COLOR_CORRECTED_FOLDER,filename),img)
+      output_line = os.path.join('training',OUTPUT_COLOR_CORRECTED_FOLDER,filename)
+      print(output_line)
 
-              training += input_line + ' ' + output_line + '\n'
+      training += input_line + ' ' + output_line + '\n'
 
 # write input and output file paths to file for training
 with open(os.path.join("output","training.txt"), "w+") as training_file:
